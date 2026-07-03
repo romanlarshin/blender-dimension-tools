@@ -12,6 +12,8 @@ from ..log import get_logger
 
 _log = get_logger("operators.start_dimension")
 
+_STATUS_TEXT = "Linear Dimension Mode (ESC to Exit)"
+
 
 class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
     """Enter modal linear dimension placement mode."""
@@ -20,6 +22,12 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
     bl_label = "Start Linear Dimension"
     bl_description = "Activate linear dimension placement mode until ESC or right-click"
     bl_options = {"REGISTER"}
+
+    @staticmethod
+    def _clear_modal_state(context: bpy.types.Context) -> None:
+        """Restore cursor and clear workspace status text."""
+        context.window.cursor_modal_restore()
+        context.workspace.status_text_set(None)
 
     def invoke(
         self,
@@ -33,7 +41,7 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
 
         context.window_manager.modal_handler_add(self)
         context.window.cursor_modal_set("CROSSHAIR")
-        self.report({"INFO"}, "Linear Dimension mode started")
+        context.workspace.status_text_set(_STATUS_TEXT)
         _log.debug("Linear dimension modal started")
         return {"RUNNING_MODAL"}
 
@@ -44,13 +52,12 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
     ) -> set[str]:
         """Handle input while linear dimension mode is active."""
         if event.type in {"ESC", "RIGHTMOUSE"} and event.value == "PRESS":
-            context.window.cursor_modal_restore()
-            self.report({"INFO"}, "Linear Dimension mode cancelled")
+            self._clear_modal_state(context)
             _log.debug("Linear dimension modal cancelled")
             return {"CANCELLED"}
 
         if event.type == "LEFTMOUSE" and event.value == "PRESS":
-            self.report({"INFO"}, "Click captured")
+            print("Click captured")
             _log.debug("Linear dimension click captured")
             return {"RUNNING_MODAL"}
 
@@ -58,3 +65,7 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
             return {"RUNNING_MODAL"}
 
         return {"PASS_THROUGH"}
+
+    def cancel(self, context: bpy.types.Context) -> None:
+        """Clean up when the modal session is interrupted."""
+        self._clear_modal_state(context)

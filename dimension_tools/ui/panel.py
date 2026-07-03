@@ -32,7 +32,7 @@ class DIMTOOLS_PT_main(bpy.types.Panel):
             text="Start Linear Dimension",
             icon="DRIVER_DISTANCE",
         )
-        layout.label(text="ESC / Right Click: Exit", icon="INFO")
+        layout.label(text="Linear Dimension Mode (ESC to Exit)", icon="INFO")
         layout.separator()
 
         layout.label(text="Global Style", icon="MODIFIER")
