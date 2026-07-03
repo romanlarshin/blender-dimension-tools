@@ -57,7 +57,7 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
             return {"CANCELLED"}
 
         if event.type == "LEFTMOUSE" and event.value == "PRESS":
-            print("Click captured")
+            self.report({"INFO"}, "Click captured")
             _log.debug("Linear dimension click captured")
             return {"RUNNING_MODAL"}
 
