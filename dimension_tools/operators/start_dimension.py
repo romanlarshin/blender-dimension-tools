@@ -10,7 +10,7 @@ import bpy
 
 from ..log import get_logger
 
-_log = get_logger("operators.start_linear")
+_log = get_logger("operators.start_dimension")
 
 
 class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):

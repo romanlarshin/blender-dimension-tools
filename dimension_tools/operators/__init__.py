@@ -5,7 +5,7 @@ from __future__ import annotations
 import bpy
 
 from ..log import get_logger
-from .start_linear_dimension import DIMTOOLS_OT_start_linear_dimension
+from .start_dimension import DIMTOOLS_OT_start_linear_dimension
 
 _log = get_logger("operators")
 

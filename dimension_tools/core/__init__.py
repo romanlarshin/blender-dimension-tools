@@ -8,8 +8,16 @@ never attaches arbitrary Python state to the Scene.
 from __future__ import annotations
 
 from ..log import get_logger
+from . import chain, dimension, selection, store
 
 _log = get_logger("core")
+
+__all__ = (
+    "chain",
+    "dimension",
+    "selection",
+    "store",
+)
 
 
 def register() -> None:
