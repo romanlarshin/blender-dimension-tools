@@ -1,15 +1,12 @@
-"""Dimension Tools — CAD-like viewport dimensions for Blender 5.1+.
-
-Entry point: registers all subsystems in dependency order and exposes ``bl_info``.
-"""
+"""Dimension Tools — CAD-like viewport dimensions for Blender 5.1+."""
 
 bl_info = {
     "name": "Dimension Tools",
     "author": "Dimension Tools Contributors",
-    "version": (0, 1, 0),
+    "version": (1, 0, 0),
     "blender": (5, 1, 0),
     "location": "View3D > Sidebar > Dimensions",
-    "description": "CAD-like dimension annotations drawn in the viewport",
+    "description": "Professional CAD-like linear dimensions drawn as GPU viewport overlays",
     "category": "3D View",
     "doc_url": "",
     "tracker_url": "",
@@ -23,7 +20,7 @@ _log = log.get_logger()
 def register() -> None:
     """Register all addon classes and runtime subsystems."""
     log.configure()
-    _log.info("Registering Dimension Tools")
+    _log.info("Registering Dimension Tools v%s", ".".join(str(v) for v in bl_info["version"]))
 
     preferences.register()
     properties.register()
@@ -47,5 +44,4 @@ def unregister() -> None:
     core.unregister()
     properties.unregister()
     preferences.unregister()
-    _log.info("Dimension Tools unregistered")
     log.shutdown()

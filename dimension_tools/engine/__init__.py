@@ -8,7 +8,7 @@ package when rendering is implemented.
 from __future__ import annotations
 
 from ..log import get_logger
-from . import chain_engine, draw_engine, modal_engine, snap_engine
+from . import chain_engine, draw_engine, modal_engine, offset_engine, snap_engine
 
 _log = get_logger("engine")
 
@@ -16,6 +16,7 @@ __all__ = (
     "chain_engine",
     "draw_engine",
     "modal_engine",
+    "offset_engine",
     "snap_engine",
 )
 

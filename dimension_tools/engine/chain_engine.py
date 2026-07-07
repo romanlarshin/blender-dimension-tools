@@ -1,26 +1,35 @@
-"""Chain attachment engine.
-
-Will detect when a new dimension should attach to an existing dimension line
-(CAD-style chains). Works in screen space and returns attachment data for the
-core layer to consume.
-"""
+"""Chain attachment engine."""
 
 from __future__ import annotations
 
-from ..log import get_logger
+import bpy
+from mathutils import Vector
 
-_log = get_logger("engine.chain")
+from ..core import chain as chain_core
+from .offset_engine import build_dimension_layout
+
+
+def compute_chain_uid(
+    context: bpy.types.Context,
+    point_a: Vector,
+    point_b: Vector,
+    offset_vector: Vector,
+) -> str:
+    """Find or create a chain uid for a new dimension layout."""
+    layout = build_dimension_layout(point_a, point_b, offset_vector)
+    if layout is None:
+        return chain_core.find_or_create_chain(context.scene, Vector((0.0, 0.0, 1.0)), 0.0)
+
+    if offset_vector.length_squared < 1e-12:
+        return chain_core.find_or_create_chain(context.scene, Vector((0.0, 0.0, 1.0)), 0.0)
+
+    offset_dir = offset_vector.normalized()
+    return chain_core.find_or_create_chain(context.scene, offset_dir, offset_vector.length)
 
 
 def register() -> None:
-    """Initialize the chain engine.
-
-    Intentionally empty during bootstrap so the addon loads before chain
-    attachment is implemented.
-    """
-    _log.debug("Chain engine registered")
+    """Initialize the chain engine."""
 
 
 def unregister() -> None:
     """Shut down the chain engine."""
-    _log.debug("Chain engine unregistered")

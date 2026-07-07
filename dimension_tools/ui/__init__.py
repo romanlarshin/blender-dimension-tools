@@ -4,23 +4,21 @@ from __future__ import annotations
 
 import bpy
 
-from ..log import get_logger
-from .panel import DIMTOOLS_PT_main
+from .panel import DIMTOOLS_PT_dimension_list, DIMTOOLS_PT_main
 
-_log = get_logger("ui")
-
-classes = (DIMTOOLS_PT_main,)
+classes = (
+    DIMTOOLS_PT_main,
+    DIMTOOLS_PT_dimension_list,
+)
 
 
 def register() -> None:
     """Register UI classes."""
     for cls in classes:
         bpy.utils.register_class(cls)
-    _log.debug("UI registered")
 
 
 def unregister() -> None:
     """Unregister UI classes."""
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    _log.debug("UI unregistered")

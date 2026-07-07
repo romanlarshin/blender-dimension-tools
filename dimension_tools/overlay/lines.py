@@ -6,55 +6,51 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 from mathutils import Vector
 
+from ..gpu.batch import LineBatch
+
 
 def draw_world_lines(
     segments: list[Vector],
     color: tuple[float, float, float, float],
+    *,
+    line_width: float = 1.5,
 ) -> None:
-    """Draw independent line segments in world space using the LINES primitive."""
+    """Draw independent line segments in world space."""
     if len(segments) < 2:
         return
-
-    shader = gpu.shader.from_builtin("UNIFORM_COLOR")
-    batch = batch_for_shader(shader, "LINES", {"pos": segments})
-    shader.bind()
-    shader.uniform_float("color", color)
-    gpu.state.line_width_set(3.0)
-    batch.draw(shader)
-    gpu.state.line_width_set(1.0)
+    batch = LineBatch()
+    batch.add_segments(segments)
+    batch.draw(color, line_width=line_width)
 
 
 def draw_world_cross(
     center: Vector,
     size: float,
     color: tuple[float, float, float, float],
+    *,
+    line_width: float = 3.0,
 ) -> None:
-    """Draw a 3D axis cross centered on ``center`` with the given full span."""
+    """Draw a visible 3D axis cross centered on ``center`` (POST_VIEW)."""
     half = size * 0.5
     cx, cy, cz = center.x, center.y, center.z
-    segments = [
-        Vector((cx - half, cy, cz)),
-        Vector((cx + half, cy, cz)),
-        Vector((cx, cy - half, cz)),
-        Vector((cx, cy + half, cz)),
-        Vector((cx, cy, cz - half)),
-        Vector((cx, cy, cz + half)),
-    ]
-    draw_world_lines(segments, color)
+    batch = LineBatch()
+    batch.add_segment(Vector((cx - half, cy, cz)), Vector((cx + half, cy, cz)))
+    batch.add_segment(Vector((cx, cy - half, cz)), Vector((cx, cy + half, cz)))
+    batch.add_segment(Vector((cx, cy, cz - half)), Vector((cx, cy, cz + half)))
+    batch.draw(color, line_width=line_width)
 
 
-def draw_world_polyline(
-    points: list[Vector],
+def draw_world_point(
+    center: Vector,
     color: tuple[float, float, float, float],
-    width: float = 1.5,
+    *,
+    size: float = 8.0,
 ) -> None:
-    """Draw a connected polyline in world space."""
-    if len(points) < 2:
-        return
-
-    shader = gpu.shader.from_builtin("POLYLINE_UNIFORM_COLOR")
-    batch = batch_for_shader(shader, "LINE_STRIP", {"pos": points})
+    """Draw a visible world-space point marker (POST_VIEW)."""
+    shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
+    batch = batch_for_shader(shader, "POINTS", {"pos": [center]})
     shader.bind()
     shader.uniform_float("color", color)
-    shader.uniform_float("lineWidth", width)
+    gpu.state.point_size_set(size)
     batch.draw(shader)
+    gpu.state.point_size_set(1.0)
