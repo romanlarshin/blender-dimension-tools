@@ -1,8 +1,7 @@
 """Draw engine — viewport overlay orchestration.
 
-Will register the View3D POST_PIXEL draw handler, iterate stored dimensions,
-and dispatch GPU drawing calls to the overlay package. GPU drawing only — no
-Curve or Mesh objects.
+Persistent dimension drawing will be added here later. Modal debug drawing is
+currently owned by the start-dimension operator instance.
 """
 
 from __future__ import annotations
@@ -13,14 +12,10 @@ _log = get_logger("engine.draw")
 
 
 def register() -> None:
-    """Register the viewport draw handler.
-
-    Intentionally empty during bootstrap so the addon loads before rendering
-    is implemented.
-    """
-    _log.debug("Draw engine registered (no handler yet)")
+    """Register the draw engine."""
+    _log.debug("Draw engine registered")
 
 
 def unregister() -> None:
-    """Remove the viewport draw handler."""
+    """Unregister the draw engine."""
     _log.debug("Draw engine unregistered")

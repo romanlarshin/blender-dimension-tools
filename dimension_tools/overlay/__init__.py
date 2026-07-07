@@ -8,13 +8,15 @@ object-level geometry creation.
 from __future__ import annotations
 
 from ..log import get_logger
-from . import arrows, lines, text
+from . import arrows, lines, points, snap_preview, text
 
 _log = get_logger("overlay")
 
 __all__ = (
     "arrows",
     "lines",
+    "points",
+    "snap_preview",
     "text",
 )
 
