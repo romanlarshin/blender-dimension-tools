@@ -130,15 +130,16 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
 
         if event.type == "LEFTMOUSE" and event.value == "PRESS":
             session = modal_engine.get_session()
-            if (
-                session is not None
-                and session.first_point is None
-                and session.snap_result is not None
-            ):
-                session.first_point = session.snap_result.world_co.copy()
-                self.report({"INFO"}, "First point captured")
-                _log.debug("First point captured at %s", session.first_point)
-                _redraw_all_view3d_areas(context)
+            if session is not None and session.snap_result is not None:
+                if session.first_point is None:
+                    session.first_point = session.snap_result.world_co.copy()
+                    self.report({"INFO"}, "First point captured")
+                    _log.debug("First point captured at %s", session.first_point)
+                    _redraw_all_view3d_areas(context)
+                else:
+                    session.second_point = session.snap_result.world_co.copy()
+                    _log.debug("Second point captured at %s", session.second_point)
+                    _redraw_all_view3d_areas(context)
             return {"RUNNING_MODAL"}
 
         if event.type == "MOUSEMOVE":

@@ -20,6 +20,7 @@ class ModalSession:
 
     snap_result: SnapResult | None = None
     first_point: Vector | None = None
+    second_point: Vector | None = None
 
 
 def start_session() -> ModalSession:

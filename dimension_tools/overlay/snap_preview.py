@@ -11,6 +11,7 @@ _log = get_logger("overlay.snap_preview")
 
 SNAP_CROSS_COLOR = (0.2, 1.0, 0.2, 1.0)
 FIRST_POINT_CROSS_COLOR = (1.0, 1.0, 0.2, 1.0)
+SECOND_POINT_CROSS_COLOR = (1.0, 0.2, 0.2, 1.0)
 PREVIEW_LINE_COLOR = (1.0, 1.0, 0.2, 1.0)
 SNAP_CROSS_SIZE = 0.25
 
@@ -23,7 +24,11 @@ def draw_vertex_snap() -> None:
     if session is None:
         return
 
-    if session.first_point is None and session.snap_result is None:
+    if (
+        session.first_point is None
+        and session.snap_result is None
+        and session.second_point is None
+    ):
         return
 
     gpu.state.blend_set("ALPHA")
@@ -37,6 +42,9 @@ def draw_vertex_snap() -> None:
 
     if session.first_point is not None:
         lines.draw_world_cross(session.first_point, SNAP_CROSS_SIZE, FIRST_POINT_CROSS_COLOR)
+
+    if session.second_point is not None:
+        lines.draw_world_cross(session.second_point, SNAP_CROSS_SIZE, SECOND_POINT_CROSS_COLOR)
 
     if session.snap_result is not None:
         lines.draw_world_cross(
