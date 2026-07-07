@@ -1,20 +1,27 @@
 """Start linear dimension operator — modal tool entry point.
 
 Activates a persistent modal session for placing linear dimensions. Stays active
-until ESC or right-click. GPU preview draws a green 3D cross at world origin.
+until ESC or right-click. GPU preview draws crosses for snap and the first picked point.
 """
 
 from __future__ import annotations
 
 import bpy
 
-from ..engine import modal_engine
+from ..engine import modal_engine, snap_engine
 from ..log import get_logger
 from ..overlay import snap_preview
+from ..preferences import DIMTOOLS_AddonPreferences
 
 _log = get_logger("operators.start_dimension")
 
 _STATUS_TEXT = "Linear Dimension Mode (ESC to Exit)"
+
+
+def _get_snap_radius(context: bpy.types.Context) -> float:
+    """Read the snap radius from addon preferences."""
+    prefs = context.preferences.addons[DIMTOOLS_AddonPreferences.bl_idname].preferences
+    return float(prefs.snap_radius)
 
 
 def _redraw_all_view3d_areas(context: bpy.types.Context) -> None:
@@ -26,6 +33,22 @@ def _redraw_all_view3d_areas(context: bpy.types.Context) -> None:
     for area in window.screen.areas:
         if area.type == "VIEW_3D":
             area.tag_redraw()
+
+
+def _update_vertex_snap(context: bpy.types.Context, event: bpy.types.Event) -> None:
+    """Find the nearest mesh vertex and store it in the active modal session."""
+    session = modal_engine.get_session()
+    if session is None:
+        return
+
+    with snap_engine.view3d_snap_context(context) as snap_context:
+        session.snap_result = snap_engine.find_nearest_vertex(
+            snap_context,
+            event,
+            _get_snap_radius(context),
+        )
+
+    _redraw_all_view3d_areas(context)
 
 
 class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
@@ -44,7 +67,7 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
             return
 
         self._draw_handle = bpy.types.SpaceView3D.draw_handler_add(
-            snap_preview.draw_origin_point,
+            snap_preview.draw_vertex_snap,
             (),
             "WINDOW",
             "POST_VIEW",
@@ -86,7 +109,7 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
         modal_engine.start_session()
         self._draw_handle = None
         self._add_draw_handler()
-        _redraw_all_view3d_areas(context)
+        _update_vertex_snap(context, event)
 
         context.window_manager.modal_handler_add(self)
         context.window.cursor_modal_set("CROSSHAIR")
@@ -106,12 +129,20 @@ class DIMTOOLS_OT_start_linear_dimension(bpy.types.Operator):
             return {"CANCELLED"}
 
         if event.type == "LEFTMOUSE" and event.value == "PRESS":
-            self.report({"INFO"}, "Click captured")
-            _log.debug("Linear dimension click captured")
+            session = modal_engine.get_session()
+            if (
+                session is not None
+                and session.first_point is None
+                and session.snap_result is not None
+            ):
+                session.first_point = session.snap_result.world_co.copy()
+                self.report({"INFO"}, "First point captured")
+                _log.debug("First point captured at %s", session.first_point)
+                _redraw_all_view3d_areas(context)
             return {"RUNNING_MODAL"}
 
         if event.type == "MOUSEMOVE":
-            _redraw_all_view3d_areas(context)
+            _update_vertex_snap(context, event)
             return {"RUNNING_MODAL"}
 
         return {"PASS_THROUGH"}

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from mathutils import Vector
+
 from ..log import get_logger
+from .snap_engine import SnapResult
 
 _log = get_logger("engine.modal")
 
@@ -15,8 +18,8 @@ _session: "ModalSession | None" = None
 class ModalSession:
     """Runtime state for an active linear dimension modal tool."""
 
-    mouse_x: int = 0
-    mouse_y: int = 0
+    snap_result: SnapResult | None = None
+    first_point: Vector | None = None
 
 
 def start_session() -> ModalSession:

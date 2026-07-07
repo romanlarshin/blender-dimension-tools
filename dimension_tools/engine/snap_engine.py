@@ -71,16 +71,10 @@ def _iter_view3d_mesh_objects(context: bpy.types.Context) -> Iterator[bpy.types.
         _log.debug("find_nearest_vertex: context.space_data is not VIEW_3D")
         return
 
-    depsgraph = context.evaluated_depsgraph_get()
-
-    for obj in context.view_layer.objects:
+    for obj in context.visible_objects:
         if obj.type != "MESH":
             continue
-        if obj.hide_viewport:
-            continue
         if obj.display_type == "WIRE":
-            continue
-        if not obj.visible_get(depsgraph=depsgraph, viewport=space):
             continue
         yield obj
 
